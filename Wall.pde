@@ -1,7 +1,7 @@
 class Wall extends GameObject {
   int myColor;
   
-  Wall(int x, int y, int w, int h, int c) {
+  Wall(float x, float y, float w, float h, int c) {
     super(x, y);
     this.collisionHeight = h;
     this.collisionWidth = w;
@@ -10,7 +10,8 @@ class Wall extends GameObject {
     this.opaque = true;
   }
 
-    
+  void update(){}
+      
   void drawMe() {
     fill(this.myColor);
     rect(this.x, this.y, this.collisionWidth, this.collisionHeight); 

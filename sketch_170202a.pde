@@ -1,4 +1,5 @@
 GameObject[] objects;
+BeamTarget beamtarget;
 
 
 
@@ -37,7 +38,8 @@ int getObjectIndex(GameObject o) {
 
 void setup() {
   size(600, 600);
-
+  beamtarget = new BeamTarget(mouseX, mouseY);
+  addObject(beamtarget);
   addObject(new Flashlight(300, 500));
   addObject(new Wall(200, 200, 200, 100, #F0299D));
   addObject(new Wall (50, 300, 100, 200, #F0299D));
@@ -52,5 +54,8 @@ void draw() {
   arc(100, 100, 100, 100, 0, QUARTER_PI/2);
   for (int i = 0; i < objects.length; i+=1) {
     objects[i].drawMe();
+  }
+  for (int i = 0; i < objects.length; i+=1) {
+    objects[i].update();
   }
 }

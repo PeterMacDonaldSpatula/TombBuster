@@ -1,14 +1,15 @@
 abstract class GameObject {
-  int x;
-  int y;
-  int collisionWidth;
-  int collisionHeight;
+  float x;
+  float y;
+  float collisionWidth;
+  float collisionHeight;
   boolean visible;
   boolean opaque;
   
   abstract void drawMe();
+  abstract void update();
   
-  GameObject(int x, int y) {
+  GameObject(float x, float y) {
     this.x = x;
     this.y = y;
     collisionWidth = 0;

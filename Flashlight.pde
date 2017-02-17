@@ -6,11 +6,11 @@ class Flashlight extends GameObject {
   
   
   PVector getDirection() {
-    float distance = PVector.dist(new PVector(x, y), new PVector(mouseX, mouseY));
-    return new PVector(abs((mouseX-x)/distance), abs((mouseY-y)/distance));
+    float distance = PVector.dist(new PVector(x, y), new PVector(beamtarget.x, beamtarget.y));
+    return new PVector(abs((beamtarget.x-x)/distance), abs((beamtarget.y-y)/distance));
   }
   
-  Flashlight(int x, int y) {
+  Flashlight(float x, float y) {
     super(x, y);
     direction = getDirection();
     numWedges = 50;
@@ -21,35 +21,35 @@ class Flashlight extends GameObject {
     arc(x, y, wedgeLength*2, wedgeLength*2, angle-(flashlightArc/numWedges), angle+(flashlightArc/numWedges));
   }
   
-  float getMouseAngle() {
+  float getTargetAngle() {
     direction = getDirection();
     float angle;
-    if ((mouseX-x) * (mouseY-y) < 0) {
+    if ((beamtarget.x-x) * (beamtarget.y-y) < 0) {
       angle = atan(direction.x/direction.y);
     } else {
       angle = atan(direction.y/direction.x);
     }
-    if (mouseX-x <0 && mouseY-y > 0) {
+    if (beamtarget.x-x <0 && beamtarget.y-y > 0) {
       angle += HALF_PI;
-    } else if (mouseX-x < 0 && mouseY-y < 0) {
+    } else if (beamtarget.x-x < 0 && beamtarget.y-y < 0) {
       angle += PI;
-    } else if (mouseX-x > 0 && mouseY-y < 0) {
+    } else if (beamtarget.x-x > 0 && beamtarget.y-y < 0) {
       angle += 3*PI/2;
-    } else if (mouseX-x ==0 && mouseY-y > 0) {
+    } else if (beamtarget.x-x ==0 && beamtarget.y-y > 0) {
       angle = HALF_PI;
-    } else if (mouseX-x ==0 && mouseY-y < 0) {
+    } else if (beamtarget.x-x ==0 && beamtarget.y-y < 0) {
       angle = 3*PI/2;
-    } else if (mouseX-x > 0 && mouseY-y == 0) {
+    } else if (beamtarget.x-x > 0 && beamtarget.y-y == 0) {
       angle = 0;
-    } else if (mouseX-x < 0 && mouseY-y == 0) {
+    } else if (beamtarget.x-x < 0 && beamtarget.y-y == 0) {
       angle = PI;
     }
     return angle;
   }
   
   PVector getCenterVector() {
-    float distance = PVector.dist(new PVector(x, y), new PVector(mouseX, mouseY));
-    return new PVector((mouseX-x)/distance, (mouseY-y)/distance);
+    float distance = PVector.dist(new PVector(x, y), new PVector(beamtarget.x, beamtarget.y));
+    return new PVector((beamtarget.x-x)/distance, (beamtarget.y-y)/distance);
   }
   
   PVector rotateVector(PVector vector, float angle) {
@@ -76,13 +76,15 @@ class Flashlight extends GameObject {
     return checkDistance(thisX+vector.x, thisY+vector.y, vector);
   }
   
+  void update(){}
+  
   void drawMe() {
     stroke(#FFF527);
     fill(#FFF527);
     //line(x, y, mouseX, mouseY);
     noStroke();
     for (float i=0-numWedges/2; i<=numWedges/2; i+=1) {
-      drawWedge(checkDistance(x, y, rotateVector(getCenterVector(), flashlightArc/numWedges*i)), getMouseAngle()+(flashlightArc/numWedges*i));
+      drawWedge(checkDistance(x, y, rotateVector(getCenterVector(), flashlightArc/numWedges*i)), getTargetAngle()+(flashlightArc/numWedges*i));
     }
   }
 }
