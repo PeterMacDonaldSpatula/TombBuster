@@ -40,12 +40,16 @@ void setup() {
 
   addObject(new Flashlight(300, 500));
   addObject(new Wall(200, 200, 200, 100, #F0299D));
+  addObject(new Wall (50, 300, 100, 200, #F0299D));
+  addObject(new Wall (450, 300, 100, 200, #F0299D));
+  addObject(new Enemy(50, 50, 50, 50));
+  addObject(new Enemy(550, 50, 50, 50)); 
 }
 
 void draw() {
   background(#245BC6);
   fill(#FFF527);
-  arc(100, 100, 100, 100, QUARTER_PI, HALF_PI);
+  arc(100, 100, 100, 100, 0, QUARTER_PI/2);
   for (int i = 0; i < objects.length; i+=1) {
     objects[i].drawMe();
   }
