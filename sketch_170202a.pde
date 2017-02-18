@@ -36,6 +36,12 @@ int getObjectIndex(GameObject o) {
   return -1;
 }
 
+void keyPressed() {
+  if (key == ' ') {
+    addObject(new Flare (300, 500));
+  }
+}
+
 void setup() {
   size(600, 600);
   beamtarget = new BeamTarget(mouseX, mouseY);
@@ -57,5 +63,10 @@ void draw() {
   }
   for (int i = 0; i < objects.length; i+=1) {
     objects[i].update();
+  }
+  for (int i = 0; i < objects.length; i+=1) {
+    if (objects[i].destroyed) {
+      removeObject(getObjectIndex(objects[i]));
+    }
   }
 }

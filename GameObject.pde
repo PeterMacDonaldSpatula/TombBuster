@@ -5,6 +5,7 @@ abstract class GameObject {
   float collisionHeight;
   boolean visible;
   boolean opaque;
+  boolean destroyed;
   
   abstract void drawMe();
   abstract void update();
@@ -16,5 +17,6 @@ abstract class GameObject {
     collisionHeight = 0;
     visible = false;
     opaque = false;
+    destroyed = false;
   }
 }
