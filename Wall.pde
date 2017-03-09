@@ -1,19 +1,34 @@
 class Wall extends GameObject {
-  int myColor;
   
-  Wall(float x, float y, float w, float h, int c) {
-    super(x, y);
-    this.collisionHeight = h;
-    this.collisionWidth = w;
-    this.myColor = c;
-    this.visible = true;
-    this.opaque = true;
+  int fillColor;
+  Wall(float x, float y, float collisionX, float collisionY) {
+    super();
+    this.x = x;
+    this.y = y;
+    this.collisionX = collisionX;
+    this.collisionY = collisionY;
+    opaque = true;
+    collides = true;
+    fillColor = #A05712;
   }
-
-  void update(){}
-      
-  void drawMe() {
-    fill(this.myColor);
-    rect(this.x, this.y, this.collisionWidth, this.collisionHeight); 
+  
+  void collide(GameObject other) {
+    if (walls.contains(other)) {
+      fillColor = #A01235;
+    }
+  }
+  
+  void update() {
+    if (millis() > 10000) {
+      removed = true;
+    }
+  }
+  
+  void render() {
+    pushMatrix();
+    translate(x, y);
+    fill(fillColor);
+    rect(0, 0, collisionX, collisionY);
+    popMatrix();
   }
 }

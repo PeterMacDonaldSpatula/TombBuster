@@ -1,62 +1,19 @@
+/*
+This class is a flashlight. Flashlights are LightSources which produce a narrow beam, directed at a target point which follows the mouse.
+*/
+
 class Flashlight extends LightSource {
-  
-  PVector getDirection() {
-    float distance = PVector.dist(new PVector(x, y), new PVector(beamtarget.x, beamtarget.y));
-    return new PVector(abs((beamtarget.x-x)/distance), abs((beamtarget.y-y)/distance));
-  }
-  
-  Flashlight(float x, float y) {
-    super(x, y);
-    direction = getDirection();
-    numWedges = 50;
+  Flashlight(float x, float y) {//Spawns at the provided x and y location.
+    super(new BeamTarget());
+    addBeamTarget((BeamTarget)target);
+    this.x = x;
+    this.y = y;
     lightArc = QUARTER_PI/2;
-    range = sqrt(pow(width, 2)+pow(height, 2));
+    numWedges = 100;
+    range = screensize;//Light will travel as far as the diagonal screen size
   }
   
+  void collide(GameObject other){}
   
-  
-  float getTargetAngle() {
-    direction = getDirection();
-    float angle;
-    if ((beamtarget.x-x) * (beamtarget.y-y) < 0) {
-      angle = atan(direction.x/direction.y);
-    } else {
-      angle = atan(direction.y/direction.x);
-    }
-    if (beamtarget.x-x <0 && beamtarget.y-y > 0) {
-      angle += HALF_PI;
-    } else if (beamtarget.x-x < 0 && beamtarget.y-y < 0) {
-      angle += PI;
-    } else if (beamtarget.x-x > 0 && beamtarget.y-y < 0) {
-      angle += 3*PI/2;
-    } else if (beamtarget.x-x ==0 && beamtarget.y-y > 0) {
-      angle = HALF_PI;
-    } else if (beamtarget.x-x ==0 && beamtarget.y-y < 0) {
-      angle = 3*PI/2;
-    } else if (beamtarget.x-x > 0 && beamtarget.y-y == 0) {
-      angle = 0;
-    } else if (beamtarget.x-x < 0 && beamtarget.y-y == 0) {
-      angle = PI;
-    }
-    return angle;
-  }
-  
-  PVector getCenterVector() {
-    float distance = PVector.dist(new PVector(x, y), new PVector(beamtarget.x, beamtarget.y));
-    return new PVector((beamtarget.x-x)/distance, (beamtarget.y-y)/distance);
-  }
-  
-  
-  
-  void update(){}
-  
-  void drawMe() {
-    stroke(#FFF527);
-    fill(#FFF527);
-    //line(x, y, mouseX, mouseY);
-    noStroke();
-    for (float i=0-numWedges/2; i<=numWedges/2; i+=1) {
-      drawWedge(checkDistance(x, y, rotateVector(getCenterVector(), lightArc/numWedges*i)), getTargetAngle()+(lightArc/numWedges*i));
-    }
-  }
+  void update() {}
 }
