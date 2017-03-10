@@ -8,6 +8,7 @@ ArrayList<GameObject> walls; //List of all Walls in the game
 ArrayList<GameObject> enemies; //List of all Enemies in the game
 ArrayList<GameObject> lightTargets;//List of all LightTargets in the game
 ArrayList<GameObject> tracers;//List of all LightTracers in the game
+ArrayList<GameObject> rooms;
 ArrayList<LightSource> lightSources;//List of all lightSources in the game
 ArrayList<Collider> colliders; //The collision map for the game
 
@@ -16,6 +17,7 @@ final static float WINDOW_MARGIN = 100; //How far an object can be from the scre
 final static float COLLISION_REFRESH_INTERVAL = 1.0; //How long to wait between collision map generations. If the collision map hasn't been generated in this amount of time, the game loop should run it. 
                                                      //Smaller numbers = more generations, larger numbers = fewer. If you start getting collision glitches at the edges of the screen, try decreasing this value.
 final static float TRACER_SPEED = 10; //How far light tracers travel with each check. Lower number = more precision but worse performance
+final static float TILE_SIZE = 30; //The size of all tiles
 
 //GLOBAL VARIABLES
 int lastCollisionRefresh; //The runtime in milliseconds when generateCollisionMap() was last run.
@@ -26,6 +28,12 @@ boolean mapChanged; //Set to true when the collision map needs to be changed; se
 //Every type of object needs to have these, and they must be what's used to generate objects
 void addWall(float x, float y, float collisionX, float collisionY) {//takes the coordinates and dimensions of the wall
   Wall temp = new Wall(x, y, collisionX, collisionY);
+  objects.add(temp);
+  walls.add(temp);
+  mapChanged = true;
+}
+
+void addWall(Wall temp) {//takes the coordinates and dimensions of the wall
   objects.add(temp);
   walls.add(temp);
   mapChanged = true;
@@ -59,6 +67,17 @@ void addFlashlight(float x, float y) {//takes the flashlight's source's x and y 
   lightSources.add(temp);
 }
 
+void addRoom(float x, float y, String name, String fileName) {
+  Room temp = new Room (x, y, name, fileName);
+  objects.add(temp);
+  rooms.add(temp);
+}
+
+void addRoom(Room temp) {
+  objects.add(temp);
+  rooms.add(temp);
+}
+
 /*
 This function checks all objects for the removed flag, and removes them from the lists if they're flagged. Run at the end of the game loop.
 IF YOU ADD A LIST, YOU HAVE TO ADD A LINE TO THIS FUNCTION AS WELL
@@ -74,6 +93,7 @@ void cleanObjects() {
       lightTargets.remove(temp);
       tracers.remove(temp);
       lightSources.remove(temp);
+      rooms.remove(temp);
       mapChanged = true;
     }
   }
@@ -109,14 +129,12 @@ void setup() {
   enemies = new ArrayList<GameObject>();
   lightTargets = new ArrayList<GameObject>();
   lightSources = new ArrayList<LightSource>();
+  rooms = new ArrayList<GameObject>();
   tracers = new ArrayList<GameObject>();
   //Set up the objects that go in those lists
   
   
-  addWall(100, 100, 100, 100);
-  addWall(400, 100, 100, 100);
-  addWall(200, 300, 150, 150);
-  addWall(300, 300, 150, 150);
+  addRoom(100, 100, "test", "testRoom.map");
   addFlashlight(300, 300);
   
   //Build the initial collision map (Do this last)

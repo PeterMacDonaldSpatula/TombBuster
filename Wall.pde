@@ -1,6 +1,10 @@
+/*
+This class describes a wall. Not much more to say. 
+*/
+
 class Wall extends GameObject {
   
-  int fillColor;
+  int fillColor;//The color of the wall
   Wall(float x, float y, float collisionX, float collisionY) {
     super();
     this.x = x;
@@ -12,22 +16,15 @@ class Wall extends GameObject {
     fillColor = #A05712;
   }
   
-  void collide(GameObject other) {
-    if (walls.contains(other)) {
-      fillColor = #A01235;
-    }
-  }
+  void collide(GameObject other) {}
   
-  void update() {
-    if (millis() > 10000) {
-      removed = true;
-    }
-  }
+  void update() {}
   
   void render() {
     pushMatrix();
     translate(x, y);
     fill(fillColor);
+    noStroke();
     rect(0, 0, collisionX, collisionY);
     popMatrix();
   }
