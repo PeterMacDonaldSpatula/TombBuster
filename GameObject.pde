@@ -13,7 +13,8 @@ abstract class GameObject {
   boolean fogVisible;//TRUE if the object is still visible when the flashlight beam moves away (e.g. walls)
   boolean removed;//Set this TRUE if you want the object to be removed at the next end of game loop
   boolean ui;//Set this TRUE if the object is part of the UI (e.g. should not be moved with the camera
-  ArrayList<Trigger> triggers;//A list of all triggers that have been sent to this object
+  byte direction;
+  float speed;
   
   GameObject() {
     x = 0;
@@ -27,7 +28,6 @@ abstract class GameObject {
     fogVisible = false;
     removed = false;
     ui = false;
-    triggers = new ArrayList<Trigger>();
   }
   
   //This function takes in another GameObject, and performs collision logic depending on what type the other object is.
@@ -40,9 +40,4 @@ abstract class GameObject {
   
   //This function draws the object to the screen
   abstract void render();
-  
-  //This function sends a trigger to another object.
-  void sendTrigger(GameObject other, String name) {
-    other.triggers.add(new Trigger(name));
-  }
 }

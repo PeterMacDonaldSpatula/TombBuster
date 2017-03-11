@@ -3,17 +3,19 @@ This class is a flashlight. Flashlights are LightSources which produce a narrow 
 */
 
 class Flashlight extends LightSource {
+  
   Flashlight(float x, float y) {//Spawns at the provided x and y location.
     super(new BeamTarget());
     addBeamTarget((BeamTarget)target);
     this.x = x;
     this.y = y;
-    lightArc = QUARTER_PI/2;
+    lightArc = QUARTER_PI;
     numWedges = 100;
     range = screensize;//Light will travel as far as the diagonal screen size
   }
   
   void collide(GameObject other){}
   
-  void update() {}
+  void update() {
+  }
 }
