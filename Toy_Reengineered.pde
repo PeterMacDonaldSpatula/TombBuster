@@ -8,7 +8,9 @@ ArrayList<GameObject> walls; //List of all Walls in the game
 ArrayList<GameObject> enemies; //List of all Enemies in the game
 ArrayList<GameObject> lightTargets;//List of all LightTargets in the game
 ArrayList<GameObject> tracers;//List of all LightTracers in the game
-ArrayList<GameObject> rooms;
+ArrayList<GameObject> triggerspaces;//List of all trigger spaces in the game
+ArrayList<GameObject> hiddenmessages;//List of all HiddenMessages in the game
+ArrayList<GameObject> rooms;//List of all Rooms in the game
 ArrayList<LightSource> lightSources;//List of all lightSources in the game
 ArrayList<Collider> colliders; //The collision map for the game
 
@@ -18,6 +20,7 @@ final static float COLLISION_REFRESH_INTERVAL = 1.0; //How long to wait between 
                                                      //Smaller numbers = more generations, larger numbers = fewer. If you start getting collision glitches at the edges of the screen, try decreasing this value.
 final static float TRACER_SPEED = 10; //How far light tracers travel with each check. Lower number = more precision but worse performance
 final static float TILE_SIZE = 30; //The size of all tiles
+final static float LIGHT_ACTIVATION_TIME = 1.5; //How long light activation tiles take to kick in
 
 //GLOBAL VARIABLES
 int lastCollisionRefresh; //The runtime in milliseconds when generateCollisionMap() was last run.
@@ -78,6 +81,22 @@ void addRoom(Room temp) {
   rooms.add(temp);
 }
 
+void addTriggerSpace(TriggerSpace temp) {
+  objects.add(temp);
+  triggerspaces.add(temp);
+}
+
+void addHiddenMessage(float x, float y, float collisionX, float collisionY, int[] input) {
+  HiddenMessage temp = new HiddenMessage(x, y, collisionX, collisionY, input);
+  objects.add(temp);
+  hiddenmessages.add(temp);
+}
+
+void addHiddenMessage(HiddenMessage temp) {
+  objects.add(temp);
+  hiddenmessages.add(temp);
+}
+
 /*
 This function checks all objects for the removed flag, and removes them from the lists if they're flagged. Run at the end of the game loop.
 IF YOU ADD A LIST, YOU HAVE TO ADD A LINE TO THIS FUNCTION AS WELL
@@ -94,6 +113,8 @@ void cleanObjects() {
       tracers.remove(temp);
       lightSources.remove(temp);
       rooms.remove(temp);
+      triggerspaces.remove(temp);
+      hiddenmessages.remove(temp);
       mapChanged = true;
     }
   }
@@ -131,11 +152,17 @@ void setup() {
   lightSources = new ArrayList<LightSource>();
   rooms = new ArrayList<GameObject>();
   tracers = new ArrayList<GameObject>();
+  triggerspaces = new ArrayList<GameObject>();
+  hiddenmessages = new ArrayList<GameObject>();
   //Set up the objects that go in those lists
   
   
   addRoom(100, 100, "test", "testRoom.map");
   addFlashlight(300, 300);
+  int[] message = {int(random(0, 6)), int(random(0, 6)), int(random(0, 6)), int(random(0, 6))};
+  HiddenMessage temp = new HiddenMessage(400, 400, 50, 50, message);
+  addHiddenMessage(temp);
+  addTriggerSpace(new LightActivated(200, 400, 50, 50, temp));
   
   //Build the initial collision map (Do this last)
   generateCollisionMap();

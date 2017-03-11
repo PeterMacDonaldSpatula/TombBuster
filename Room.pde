@@ -37,6 +37,14 @@ class Room extends GameObject {
       }
     }
   }
+  /*
+  This function returns the x and y coordinates of the top-left corner of the indicated tile within the room. 
+  Tile coordinates start at [x, y] = [0, 0]
+  */
+  PVector getTileCoordinate(int x, int y) {
+    PVector coordinates = new PVector(this.x + x*TILE_SIZE, this.y + y*TILE_SIZE);
+    return coordinates;
+  }
   
   void collide(GameObject other) {
     if (rooms.contains(other)) { //If two rooms are inside each other, that's no good, and it gives an error message to the console telling you which rooms are intersecting
