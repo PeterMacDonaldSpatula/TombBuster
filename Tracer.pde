@@ -14,5 +14,8 @@ class Tracer extends GameObject {
   
   void update(){}
   
-  void render(){}
+  void render(){
+    //fill(#FCED38);
+    //ellipse(x, y, 10, 10);
+  }
 }

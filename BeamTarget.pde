@@ -4,7 +4,8 @@ This class creates a target for a flashlight to orient itself towards. BeamTarge
 class BeamTarget extends LightTarget {
   float vx;
   float vy;
-  final static float BEAMSPEED = 15;//The target's maximum speed
+  final static float BEAMSPEED = 30;//The target's maximum speed
+  boolean locked;
   
   BeamTarget() {//BeamTargets automatically spawn at the mouse location
     super(mouseX, mouseY);
@@ -13,6 +14,7 @@ class BeamTarget extends LightTarget {
     vx = 0;
     vy = 0;
     collides = false;
+    locked = false;
   }
   
   /*
@@ -40,12 +42,15 @@ class BeamTarget extends LightTarget {
   void collide(GameObject other) {}
   
   void update() {//Generates its velocity vector, and then moves along it.
-    PVector temp = trajectoryToTarget(mouseX, mouseY);
-    vx = temp.x;
-    vy = temp.y;
-    x += vx;
-    y += vy;
+    if (!locked) {
+      PVector temp = trajectoryToTarget(mouseX+camera.pos.x, mouseY+camera.pos.y);
+      vx = temp.x;
+      vy = temp.y;
+      x += vx;
+      y += vy;
+    }
   }
   
-  void render() {}
+  void render() {
+  }
 }
