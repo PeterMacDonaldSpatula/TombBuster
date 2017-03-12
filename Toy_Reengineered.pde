@@ -1,5 +1,5 @@
 ArrayList<GameObject> objects; //List of all game objects in the game
-
+Camera camera;
 //OBJECT LISTS
 //All types of object needs to have a list containing all objects of its type
 //NO EXCEPTIONS. Even if there's only one of them.
@@ -11,6 +11,7 @@ ArrayList<GameObject> tracers;//List of all LightTracers in the game
 ArrayList<GameObject> triggerspaces;//List of all trigger spaces in the game
 ArrayList<GameObject> hiddenmessages;//List of all HiddenMessages in the game
 ArrayList<GameObject> rooms;//List of all Rooms in the game
+ArrayList<GameObject> players; //list of all the Players in the scene (HINT: There's only 1) 
 ArrayList<LightSource> lightSources;//List of all lightSources in the game
 ArrayList<Collider> colliders; //The collision map for the game
 
@@ -18,13 +19,19 @@ ArrayList<Collider> colliders; //The collision map for the game
 final static float WINDOW_MARGIN = 100; //How far an object can be from the screen's edge before we stop caring about it
 final static float COLLISION_REFRESH_INTERVAL = 1.0; //How long to wait between collision map generations. If the collision map hasn't been generated in this amount of time, the game loop should run it. 
                                                      //Smaller numbers = more generations, larger numbers = fewer. If you start getting collision glitches at the edges of the screen, try decreasing this value.
-final static float TRACER_SPEED = 10; //How far light tracers travel with each check. Lower number = more precision but worse performance
+final static float TRACER_SPEED = 25; //How far light tracers travel with each check. Lower number = more precision but worse performance
 final static float TILE_SIZE = 30; //The size of all tiles
 final static float LIGHT_ACTIVATION_TIME = 1.5; //How long light activation tiles take to kick in
+final static int PLAYER_INDEX = 0;
+final static int FLASHLIGHT_INDEX = 2;
 
 //GLOBAL VARIABLES
 int lastCollisionRefresh; //The runtime in milliseconds when generateCollisionMap() was last run.
+int xOffset, yOffset; //These are used to keep track of the translation of the camera 
 boolean mapChanged; //Set to true when the collision map needs to be changed; set to false at the beginning of each loop iteration
+boolean moveLeft, moveRight, moveUp, moveDown; //these are for the controls to allow for multiple directions to be processed at once.
+int lastIn; //this records the last input to get the right idle animation for the player
+ 
 
 //OBJECT CREATORS
 //These functions create objects and add them to the relevant lists, and flag that the game needs to rebuild the collision map
@@ -40,6 +47,12 @@ void addWall(Wall temp) {//takes the coordinates and dimensions of the wall
   objects.add(temp);
   walls.add(temp);
   mapChanged = true;
+}
+
+void addPlayer(float x, float y) {
+  Player temp = new Player(x, y);
+  objects.add(temp);
+  players.add(temp);
 }
 
 void addBeamTarget() {//BeamTargets always are spawned at mouse position, so no need for parameters
@@ -113,6 +126,7 @@ void cleanObjects() {
       tracers.remove(temp);
       lightSources.remove(temp);
       rooms.remove(temp);
+      players.remove(temp);
       triggerspaces.remove(temp);
       hiddenmessages.remove(temp);
       mapChanged = true;
@@ -142,8 +156,14 @@ void generateCollisionMap() {
 }
 
 void setup() {
+  //initialize globals
+  moveUp = false;
+  moveDown = false;
+  moveLeft = false;
+  moveRight = false;
+  lastIn = 2;
   //Set up the window
-  size(600, 600);
+  size(1280, 1024);
   //Set up all lists
   objects = new ArrayList<GameObject>();
   walls = new ArrayList<GameObject>();
@@ -153,12 +173,13 @@ void setup() {
   rooms = new ArrayList<GameObject>();
   tracers = new ArrayList<GameObject>();
   triggerspaces = new ArrayList<GameObject>();
+  players = new ArrayList<GameObject>();
   hiddenmessages = new ArrayList<GameObject>();
   //Set up the objects that go in those lists
-  
-  
+  camera = new Camera();
+  addPlayer(width/2, height/2);
+  addFlashlight(width/2, height/2);
   addRoom(100, 100, "test", "testRoom.map");
-  addFlashlight(300, 300);
   int[] message = {int(random(0, 6)), int(random(0, 6)), int(random(0, 6)), int(random(0, 6))};
   HiddenMessage temp = new HiddenMessage(400, 400, 50, 50, message);
   addHiddenMessage(temp);
@@ -172,6 +193,15 @@ void setup() {
 void draw(){
   background(#000000);
   mapChanged = false;//Reset this each loop so we don't create the map every time
+  move();
+  
+  fill(255, 0, 0);
+  rect(25, 25, 25, 25);
+  
+  //draw all the gameobjects in the push/popmatrix section so it moves with the camera
+  pushMatrix();
+  translate(-camera.pos.x, -camera.pos.y);
+  camera.draw(objects.get(PLAYER_INDEX).x, objects.get(PLAYER_INDEX).y);  //draw at the player's position
   for (int i = 0; i<colliders.size(); i+=1) {//Check all Colliders for collisions
     colliders.get(i).collide();
   }
@@ -185,6 +215,22 @@ void draw(){
       objects.get(i).render();
     }
   }
+  
+  objects.get(PLAYER_INDEX).render();
+  popMatrix();
+
+  //<HUD>
+  
+  //fps counter
+  textSize(14);
+  fill(255,255,255);
+  text(floor(frameRate), 10, 20);
+
+  //Inventory Display
+
+  //</HUD>
+
+  
   cleanObjects();//Remove any objects that have been flagged for removal
   for (int i=0; i < lightSources.size(); i+=1) {//Refresh light sources so the light rays can be generated anew next round
     lightSources.get(i).cleanRays();
@@ -192,4 +238,41 @@ void draw(){
   if (mapChanged || millis()-lastCollisionRefresh >= 1000 * COLLISION_REFRESH_INTERVAL) {//If the map has changed by adding or removing elements, or if it's been too long since the last collision map rebuild, generate a new collision map
     generateCollisionMap();
   }
+}
+  
+  void keyPressed(){
+    if(keyCode == 'W'){moveUp = true; lastIn = 1;}
+    if(keyCode == 'S'){moveDown = true;lastIn = 2;}
+    if(keyCode == 'A'){moveLeft = true;lastIn = 3;}
+    if(keyCode == 'D'){moveRight = true;lastIn = 4;}
+  }
+  
+  void keyReleased(){
+    if(keyCode == 'W'){moveUp = false;}
+    if(keyCode == 'S'){moveDown = false;}
+    if(keyCode == 'A'){moveLeft = false;}
+    if(keyCode == 'D'){moveRight = false;}
+  }
+  
+  void move(){
+    if(moveUp){
+      objects.get(PLAYER_INDEX).y += (-1 * objects.get(PLAYER_INDEX).speed);
+      objects.get(FLASHLIGHT_INDEX).y += (-1 * objects.get(PLAYER_INDEX).speed);
+      camera.pos.y += (-1 * objects.get(PLAYER_INDEX).speed);
+    }
+    else if(moveDown){
+      objects.get(PLAYER_INDEX).y += (1 * objects.get(PLAYER_INDEX).speed);
+      objects.get(FLASHLIGHT_INDEX).y += (1 * objects.get(PLAYER_INDEX).speed);
+      camera.pos.y += (1 * objects.get(PLAYER_INDEX).speed);
+    }
+    if(moveLeft){
+      objects.get(PLAYER_INDEX).x += (-1 * objects.get(PLAYER_INDEX).speed);
+      objects.get(FLASHLIGHT_INDEX).x += (-1 * objects.get(PLAYER_INDEX).speed);
+      camera.pos.x += (-1 * objects.get(PLAYER_INDEX).speed);
+    }
+    else if (moveRight){
+      objects.get(PLAYER_INDEX).x += (1 * objects.get(PLAYER_INDEX).speed);
+      objects.get(FLASHLIGHT_INDEX).x += (1 * objects.get(PLAYER_INDEX).speed);
+      camera.pos.x += (1 * objects.get(PLAYER_INDEX).speed);
+    }
 }

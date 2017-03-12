@@ -13,7 +13,9 @@ abstract class GameObject {
   boolean fogVisible;//TRUE if the object is still visible when the flashlight beam moves away (e.g. walls)
   boolean removed;//Set this TRUE if you want the object to be removed at the next end of game loop
   boolean ui;//Set this TRUE if the object is part of the UI (e.g. should not be moved with the camera
-  ArrayList<Trigger> triggers;//A list of all triggers that have been sent to this object
+  ArrayList<Trigger> triggers;//A list of all triggers that have been sent to this object3
+  byte direction;
+  float speed;
   
   GameObject() {
     x = 0;
@@ -27,6 +29,8 @@ abstract class GameObject {
     fogVisible = false;
     removed = false;
     ui = false;
+    direction = 0;
+    speed = 0;
     triggers = new ArrayList<Trigger>();
   }
   
