@@ -18,6 +18,7 @@ class Player extends GameObject {
     this.x = x;
     this.y = y;
     speed = 3;
+    collides = true;
     direction = FACING_DOWN;
     upSprites = new Animation("player", "player_up", 9, 8, 3); //this will make it load all images in the format "res/player/player0.png", "res/player/player1.png" up until player4 (one less than 5) with a delay of 8 units between animation frames.
     downSprites = new Animation("player", "player_down", 9, 8, 3);
@@ -43,6 +44,39 @@ class Player extends GameObject {
   }
 
   void collide(GameObject g) {
+    if (walls.contains(g)) {
+      if (moveUp) {
+        moveDown = true;
+        moveUp = false;
+      } else if (moveDown) {
+        moveUp = true;
+        moveDown = false;
+      }
+      if (moveLeft) {
+        moveRight = true;
+        moveLeft = false;
+      } else if (moveRight) {
+        moveLeft = true;
+        moveRight = false;
+      }
+      
+      move();
+      
+      if (moveUp) {
+        moveDown = true;
+        moveUp = false;
+      } else if (moveDown) {
+        moveUp = true;
+        moveDown = false;
+      }
+      if (moveLeft) {
+        moveRight = true;
+        moveLeft = false;
+      } else if (moveRight) {
+        moveLeft = true;
+        moveRight = false;
+      }
+    }
   }
 
   void update() {

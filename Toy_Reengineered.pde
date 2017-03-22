@@ -8,9 +8,11 @@ ArrayList<GameObject> walls; //List of all Walls in the game
 ArrayList<GameObject> enemies; //List of all Enemies in the game
 ArrayList<GameObject> lightTargets;//List of all LightTargets in the game
 ArrayList<GameObject> tracers;//List of all LightTracers in the game
-ArrayList<GameObject> triggerspaces;//List of all trigger spaces in the game
+ArrayList<GameObject> lightTriggers;//List of all light trigger spaces in the game
+ArrayList<GameObject> buttonTriggers;//List of all button triggers in the game
 ArrayList<GameObject> hiddenmessages;//List of all HiddenMessages in the game
 ArrayList<GameObject> rooms;//List of all Rooms in the game
+ArrayList<GameObject> doors;
 ArrayList<GameObject> players; //list of all the Players in the scene (HINT: There's only 1) 
 ArrayList<LightSource> lightSources;//List of all lightSources in the game
 ArrayList<Collider> colliders; //The collision map for the game
@@ -47,6 +49,17 @@ void addWall(Wall temp) {//takes the coordinates and dimensions of the wall
   objects.add(temp);
   walls.add(temp);
   mapChanged = true;
+}
+
+void addDoor(float x, float y, float collisionX, float collisionY) {
+  Door temp = new Door (x, y, collisionX, collisionY);
+  objects.add(temp);
+  doors.add(temp);
+}
+
+void addDoor(Door temp) {
+  objects.add(temp);
+  doors.add(temp);
 }
 
 void addPlayer(float x, float y) {
@@ -94,13 +107,18 @@ void addRoom(Room temp) {
   rooms.add(temp);
 }
 
-void addTriggerSpace(TriggerSpace temp) {
+void addLightTrigger(LightActivated temp) {
   objects.add(temp);
-  triggerspaces.add(temp);
+  lightTriggers.add(temp);
 }
 
-void addHiddenMessage(float x, float y, float collisionX, float collisionY, int[] input) {
-  HiddenMessage temp = new HiddenMessage(x, y, collisionX, collisionY, input);
+void addButtonTrigger(ButtonActivated temp) {
+  objects.add(temp);
+  buttonTriggers.add(temp);
+}
+
+void addHiddenMessage(float x, float y, float collisionX, float collisionY, int[] input, GameObject target) {
+  HiddenMessage temp = new HiddenMessage(x, y, collisionX, collisionY, input, target);
   objects.add(temp);
   hiddenmessages.add(temp);
 }
@@ -127,8 +145,10 @@ void cleanObjects() {
       lightSources.remove(temp);
       rooms.remove(temp);
       players.remove(temp);
-      triggerspaces.remove(temp);
+      lightTriggers.remove(temp);
+      buttonTriggers.remove(temp);
       hiddenmessages.remove(temp);
+      doors.remove(temp);
       mapChanged = true;
     }
   }
@@ -172,18 +192,23 @@ void setup() {
   lightSources = new ArrayList<LightSource>();
   rooms = new ArrayList<GameObject>();
   tracers = new ArrayList<GameObject>();
-  triggerspaces = new ArrayList<GameObject>();
+  lightTriggers = new ArrayList<GameObject>();
+  buttonTriggers = new ArrayList<GameObject>();
   players = new ArrayList<GameObject>();
+  doors = new ArrayList<GameObject>();
   hiddenmessages = new ArrayList<GameObject>();
   //Set up the objects that go in those lists
   camera = new Camera();
   addPlayer(width/2, height/2);
   addFlashlight(width/2, height/2);
   addRoom(100, 100, "test", "testRoom.map");
-  int[] message = {int(random(0, 6)), int(random(0, 6)), int(random(0, 6)), int(random(0, 6))};
-  HiddenMessage temp = new HiddenMessage(400, 400, 50, 50, message);
+  
+  
+  Door door = new Door (500, 500, 100, 100);
+  addDoor(door);
+  HiddenMessage temp = new HiddenMessage(400, 400, 50, 50, generateMessage(4), door);
   addHiddenMessage(temp);
-  addTriggerSpace(new LightActivated(200, 400, 50, 50, temp));
+  addButtonTrigger(new ButtonActivated(200, 400, 50, 50, temp));
   
   //Build the initial collision map (Do this last)
   generateCollisionMap();
@@ -252,6 +277,13 @@ void draw(){
     if(keyCode == 'S'){moveDown = false;}
     if(keyCode == 'A'){moveLeft = false;}
     if(keyCode == 'D'){moveRight = false;}
+    if(keyCode  == ' '){
+      for (int i=0; i<buttonTriggers.size(); i+=1) {
+        if (((ButtonActivated)buttonTriggers.get(i)).ready) {
+          ((ButtonActivated)buttonTriggers.get(i)).activate();
+        }
+      }
+    }
   }
   
   void move(){
@@ -276,3 +308,22 @@ void draw(){
       camera.pos.x += (1 * objects.get(PLAYER_INDEX).speed);
     }
 }
+
+int[] generateMessage(int size) {
+      int[] message = new int[size];
+      ArrayList<Integer> values = new ArrayList<Integer>();
+      values.add(new Integer(0));
+      values.add(new Integer(1));
+      values.add(new Integer(2));
+      values.add(new Integer(3));
+      values.add(new Integer(4));
+      values.add(new Integer(5));
+      
+      for (int i=0; i < message.length; i+=1) {
+        int index = int(random(0, values.size()));
+        message[i] = values.get(index).intValue();
+        values.remove(index);
+      }
+      
+      return message;
+    }
